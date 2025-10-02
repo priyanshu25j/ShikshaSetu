@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rural Classroom - Remote Learning</title>
+    <link rel="stylesheet" href="style.css">
+    <meta name="theme-color" content="#218088">
+</head>
+<body>
+    <!-- Welcome Screen -->
+    <div id="welcome-screen" class="screen active">
+        <div class="container">
+            <div class="welcome-content">
+                <h1 class="app-title">ShikshaSetu</h1>
+                <p class="app-subtitle">Low-bandwidth remote classroom for rural colleges</p>
+                
+                <div class="connection-status">
+                    <span class="status-indicator" id="connection-indicator"></span>
+                    <span class="status-text">Connection: <span id="bandwidth-status">Checking...</span></span>
+                </div>
+                
+                <div class="role-selection">
+                    <button class="btn btn--primary btn--lg role-btn" id="teacher-role">
+                        <span class="role-icon">👩‍🏫</span>
+                        <span class="role-text">
+                            <strong>I'm a Teacher</strong>
+                            <small>Start classes, share content</small>
+                        </span>
+                    </button>
+                    
+                    <button class="btn btn--primary btn--lg role-btn" id="student-role">
+                        <span class="role-icon">👨‍🎓</span>
+                        <span class="role-text">
+                            <strong>I'm a Student</strong>
+                            <small>Join classes, learn online</small>
+                        </span>
+                    </button>
+                </div>
+                
+                <div class="quick-join">
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="quick-join-code" placeholder="Enter 6-character class code" maxlength="6">
+                        <button class="btn btn--secondary" id="quick-join-btn">Quick Join</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Teacher Dashboard -->
+    <div id="teacher-screen" class="screen">
+        <header class="app-header">
+            <button class="btn btn--outline btn--sm" id="back-to-home">← Home</button>
+            <h2>Teacher Dashboard</h2>
+            <div class="header-status">
+                <span class="data-usage">Data Saved: <span id="data-saved">78%</span></span>
+            </div>
+        </header>
+        
+        <div class="container">
+            <div class="dashboard-grid">
+                <!-- Live Session Card -->
+                <div class="card live-session-card">
+                    <div class="card__body">
+                        <h3>Live Session</h3>
+                        <div class="class-code-display">
+                            <p>Your Class Code: <strong id="current-class-code" class="class-code">-</strong></p>
+                            <button class="btn btn--outline btn--sm" id="copy-code">Copy Code</button>
+                        </div>
+                        
+                        <div class="session-controls">
+                            <div class="session-info" id="session-info">
+                                <p>Students: <span id="connected-students">0</span></p>
+                                <p>Duration: <span id="session-duration">00:00</span></p>
+                                <p>Status: <span id="session-status">Not Started</span></p>
+                            </div>
+                            <button class="btn btn--primary btn--lg" id="start-session">Start Live Class</button>
+                            <button class="btn btn--secondary btn--lg hidden" id="end-session">End Class</button>
+                        </div>
+                        
+                        <!-- Audio Recording Controls -->
+                        <div class="audio-recording-section hidden" id="audio-recording-section">
+                            <h4>Audio Recording</h4>
+                            <div class="audio-controls">
+                                <div class="form-group">
+                                    <label class="form-label">Audio Quality</label>
+                                    <select class="form-control" id="audio-quality">
+                                        <option value="32000">Low (32 kbps) - Best for rural</option>
+                                        <option value="64000" selected>Medium (64 kbps) - Balanced</option>
+                                        <option value="128000">High (128 kbps) - Best quality</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="recording-controls">
+                                    <button class="btn btn--primary" id="start-recording">🎙️ Start Recording</button>
+                                    <button class="btn btn--secondary hidden" id="stop-recording">⏹️ Stop Recording</button>
+                                    <button class="btn btn--outline hidden" id="play-recording">▶️ Play</button>
+                                    <button class="btn btn--outline hidden" id="download-recording">💾 Download</button>
+                                </div>
+                                
+                                <div class="recording-status hidden" id="recording-status">
+                                    <div class="recording-indicator">🔴 Recording...</div>
+                                    <div class="recording-info">
+                                        <span id="recording-duration">00:00</span>
+                                        <span id="recording-size">0 KB</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="audio-waveform hidden" id="audio-waveform">
+                                    <canvas id="waveform-canvas" width="300" height="60"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- File Sharing Card -->
+                <div class="card">
+                    <div class="card__body">
+                        <h3>Share Content</h3>
+                        <div class="file-upload-section">
+                            <input type="file" id="file-input" accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.gif,.mp3,.wav,.m4a,.mp4,.webm" multiple hidden>
+                            <button class="btn btn--primary" id="upload-files-btn">📁 Select Files to Share</button>
+                            <div class="file-size-warning" id="file-size-warning">
+                                ⚠️ Large files may take time to upload on slow connections
+                            </div>
+                        </div>
+                        
+                        <div class="content-actions">
+                            <button class="btn btn--secondary" id="share-text">📝 Share Text/Notes</button>
+                            <button class="btn btn--secondary" id="create-poll">📊 Create Poll</button>
+                        </div>
+                        
+                        <div class="shared-files" id="shared-files">
+                            <h4>Shared Files</h4>
+                            <div id="files-list">
+                                <p class="text-secondary">No files shared yet</p>
+                            </div>
+                        </div>
+                        
+                        <div class="shared-content" id="shared-content">
+                            <h4>Shared Content</h4>
+                            <div id="content-list">
+                                <p class="text-secondary">No content shared yet</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Student Monitor -->
+                <div class="card">
+                    <div class="card__body">
+                        <h3>Student Activity</h3>
+                        <div class="student-list" id="student-list">
+                            <p class="text-secondary">No students connected</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Dashboard -->
+    <div id="student-screen" class="screen">
+        <header class="app-header">
+            <button class="btn btn--outline btn--sm" id="back-to-home-student">← Home</button>
+            <h2>Student Dashboard</h2>
+            <div class="header-status">
+                <span class="connection-quality" id="connection-quality">Audio Only</span>
+            </div>
+        </header>
+        
+        <div class="container">
+            <!-- Join Class Section -->
+            <div class="card join-class-card">
+                <div class="card__body">
+                    <h3>Join Live Class</h3>
+                    <div class="join-form">
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="class-code-input" placeholder="Enter 6-character class code" maxlength="6">
+                            <button class="btn btn--primary" id="join-class-btn">Join Class</button>
+                        </div>
+                        <div class="join-error hidden" id="join-error">
+                            ❌ Class not found. Please check the code and try again.
+                        </div>
+                        <div class="live-classes" id="live-classes">
+                            <h4>Active Classes</h4>
+                            <div id="live-classes-list"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Class Section -->
+            <div class="card active-class-card hidden" id="active-class-card">
+                <div class="card__body">
+                    <h3 id="active-class-title">Connected to Class</h3>
+                    <div class="class-info">
+                        <p>Teacher: <span id="active-teacher">-</span></p>
+                        <p>Subject: <span id="active-subject">-</span></p>
+                        <p>Students in class: <span id="class-student-count">-</span></p>
+                    </div>
+                    
+                    <div class="class-controls">
+                        <div class="audio-status">
+                            <span class="status-indicator audio-indicator" id="audio-indicator"></span>
+                            <span>Audio: <span id="audio-status">Connecting...</span></span>
+                        </div>
+                        
+                        <div class="student-actions">
+                            <button class="btn btn--secondary" id="raise-hand">✋ Raise Hand</button>
+                            <button class="btn btn--secondary" id="ask-question">❓ Ask Question</button>
+                            <button class="btn btn--outline" id="leave-class">Leave Class</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Shared Files View -->
+                    <div class="shared-files-view" id="shared-files-view">
+                        <h4>Shared Files</h4>
+                        <div id="student-files-list">
+                            <p class="text-secondary">No files shared yet</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Audio Playback -->
+                    <div class="audio-playback-section" id="audio-playback-section">
+                        <h4>Class Audio</h4>
+                        <div class="audio-player" id="audio-player">
+                            <p class="text-secondary">No recordings available</p>
+                        </div>
+                    </div>
+                    
+                    <div class="shared-content-view" id="shared-content-view">
+                        <h4>Shared Content</h4>
+                        <div id="content-display">
+                            <p class="text-secondary">No content shared yet</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Offline Content -->
+            <div class="card">
+                <div class="card__body">
+                    <h3>Downloaded Content</h3>
+                    <div class="offline-content" id="offline-content-list">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Poll Creation -->
+    <div class="modal hidden" id="poll-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create Poll</h3>
+                <button class="btn btn--outline btn--sm" id="close-poll-modal">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Question</label>
+                    <textarea class="form-control" id="poll-question" placeholder="Enter your poll question"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Options</label>
+                    <input type="text" class="form-control" id="option-a" placeholder="Option A" style="margin-bottom: 8px;">
+                    <input type="text" class="form-control" id="option-b" placeholder="Option B" style="margin-bottom: 8px;">
+                    <input type="text" class="form-control" id="option-c" placeholder="Option C (optional)" style="margin-bottom: 8px;">
+                    <input type="text" class="form-control" id="option-d" placeholder="Option D (optional)">
+                </div>
+                <button class="btn btn--primary" id="create-poll-btn">Create Poll</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Text Sharing -->
+    <div class="modal hidden" id="text-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Share Text Content</h3>
+                <button class="btn btn--outline btn--sm" id="close-text-modal">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Title</label>
+                    <input type="text" class="form-control" id="content-title" placeholder="Content title">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Content</label>
+                    <textarea class="form-control" id="content-text" placeholder="Enter text content to share" rows="6"></textarea>
+                </div>
+                <button class="btn btn--primary" id="share-text-btn">Share Content</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Active Poll (Student View) -->
+    <div class="modal hidden" id="active-poll-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Live Poll</h3>
+            </div>
+            <div class="modal-body">
+                <div class="poll-question" id="poll-question-display"></div>
+                <div class="poll-options" id="poll-options-display"></div>
+                <button class="btn btn--primary hidden" id="submit-poll-answer">Submit Answer</button>
+                <div class="poll-results hidden" id="poll-results">
+                    <h4>Results</h4>
+                    <div id="poll-results-display"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error/Success Messages -->
+    <div id="notification" class="notification hidden">
+        <span id="notification-message"></span>
+        <button id="notification-close">✕</button>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

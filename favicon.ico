@@ -1,0 +1,33 @@
+import http.server
+import socketserver
+import os
+
+PORT = 8080
+DIRECTORY = os.path.dirname(__file__) or "."
+
+class No404FaviconHandler(http.server.SimpleHTTPRequestHandler):
+    def translate_path(self, path):
+        # serve files from workspace root
+        path = path.split('?',1)[0].split('#',1)[0]
+        relpath = path.lstrip('/')
+        full = os.path.join(DIRECTORY, relpath)
+        return full
+
+    def do_GET(self):
+        # if browser asks for favicon and file missing, return 204 (No Content) not 404
+        if self.path == '/favicon.ico':
+            if not os.path.exists(os.path.join(DIRECTORY, 'favicon.ico')):
+                self.send_response(204)
+                self.end_headers()
+                return
+        return super().do_GET()
+
+if __name__ == '__main__':
+    os.chdir(DIRECTORY)
+    with socketserver.TCPServer(("", PORT), No404FaviconHandler) as httpd:
+        print(f"Serving {DIRECTORY} at http://localhost:{PORT}")
+        try:
+            httpd.serve_forever()
+        except KeyboardInterrupt:
+            print("\nStopping server")
+            httpd.server_close()
